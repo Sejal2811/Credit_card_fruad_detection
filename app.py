@@ -1,83 +1,83 @@
-from flask import Flask, render_template, request
-import joblib
-import numpy as np
+import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import pickle 
+import joblib
+from PIL import Image
+import os
 
-app = Flask(__name__)
 
-# Re-load the model
-loaded_model = joblib.load('logistic_model.pkl')
+# Load the trained model
+model_file = 'logistic_model.pkl'  # Make sure this is the correct path to your model
+fraud_model = joblib.load(model_file)
 
-@app.route('/')
-def home():
-    # Plot graphs (e.g., distribution of fraudulent transactions)
-    df = pd.read_csv('preprocessFraudTrain.csv')
+# Add a sidebar for navigation
+st.sidebar.title("Navigation")
+page = st.sidebar.selectbox("Go to", ["Homepage", "Predict"])
 
-    plt.figure(figsize=(7.5,6))
-    plt.hist(df['age'], bins=50, color='lightgreen', edgecolor='black')
-    plt.title('Age Distribution', fontsize=16)
-    plt.xlabel('age', fontsize=12)
-    plt.ylabel('is_fraud', fontsize=12)  # Y-axis should show frequency instead of is_fraud
-    plt.grid(True)
-    plt.title('Age Distribution ')
-    # Save the plot as an image in the static directory
-    plt.savefig('static/age_distribution.png')  # Save it in the 'static' folder
-    plt.close() # Plot histogram for age
-    plt.figure(figsize=(7.5,6))
-    plt.hist(df['amt'], bins=50, color='lightgreen', edgecolor='black')
-    plt.title('Amount Distribution', fontsize=16)
-    plt.xlabel('amt', fontsize=12)
-    plt.ylabel('is_fraud', fontsize=12)
-    plt.grid(True)
-    plt.title('Transaction Amount Distribution')
-    plt.savefig('static/amount_distribution.png')
-    plt.close()
-    return render_template('home.html')
+# Homepage
+if page == "Homepage":
+    st.title("Credit Card Fraud Detection System")
+    st.write("Welcome to the credit card fraud detection system.")
+    st.write("Use this app to check whether a transaction is fraudulent or not.")
+    st.write("""
+        ### Instructions:
+        - Go to the **Predict** page to enter transaction details.
+        - The model will analyze the transaction and predict if it's fraudulent or not.
+    """)
+    
+    # Image Slider Section
+    st.write("### Featured Images")
+    
+    # List of image paths
+    images = [
+        'static/age_distribution.png',  # Replace with your actual image paths
+        'static/amount_distribution.png',
+        'static/Category.png'
+    ]
 
-@app.route('/predict', methods=['GET','POST'])
-def predict():
-    if request.method == 'POST':
-        # Collect the form data from the prediction page
+    # Create horizontal scrolling layout
+    cols = st.columns(len(images))
+    for i, image_path in enumerate(images):
+        image = Image.open(image_path)
+        cols[i].image(image, caption=f"Image {i + 1}", use_column_width=True)
+
+# Predict Page
+elif page == "Predict":
+    st.title("Fraud Prediction")
+    st.write("Input transaction details to check for potential fraud.")
+
+    # Create a form for user input
+    with st.form("fraud_detection_form"):
+        cc_num = st.text_input("Credit Card Number", "")
+        category = st.selectbox("Transaction Category", ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'])
+        amt = st.number_input("Transaction Amount", min_value=0.0, step=0.01)
+        gender = st.selectbox("Gender", ['0 (Male)', '1 (Female)'])
+        trans_num = st.text_input("Transaction Number", "")
+        age = st.number_input("Age", min_value=0, step=1)
+
+        # Submit button
+        submit = st.form_submit_button("Check for Fraud")
+
+    # Handle form submission
+    if submit:
         try:
-            cc_num = request.form['cc_num']
-            category = request.form['category']
-            amt = int(request.form['amt'])
-            gender = int(request.form['gender'])
-            trans_num = float(request.form['trans_num'])
-            age = int(request.form['age'])
-
-            # Prepare input data for the model
-            input_data = {
-                'cc_num': [cc_num],
+            # Prepare the input for prediction
+            input_data = pd.DataFrame({
+                'cc_num': [int(cc_num)],
                 'category': [category],
                 'amt': [amt],
-                'gender': [gender],
-                'trans_num': [trans_num],
+                'gender': [int(gender[0])],  # Extract the integer value from the gender string
+                'trans_num': [float(trans_num)],
                 'age': [age]
-            }
-            
-            input_df = pd.DataFrame(input_data)
-            input_df['cc_num'] = pd.to_numeric(input_df['cc_num'], errors='coerce')
+            })
 
-            print(loaded_model)
-            print(input_df)
-            print(input_df.dtypes)
+            # Make prediction
+            prediction = fraud_model.predict(input_data)[0]
 
-            # Make prediction using the loaded model
-            prediction = loaded_model.predict(input_df)
+            # Display the result
+            if prediction == 1:
+                st.error("Warning: This transaction is predicted as **Fraudulent**!")
+            else:
+                st.success("This transaction is predicted as **Non-Fraudulent**.")
 
-            # Render the result on the prediction page
-            return render_template('predict.html', result=prediction[0])
-        except Exception as e:
-            # Handle any error that might occur and return a message
-            error_message = f"An error occurred: {e}"
-            print(error_message)  # You can also log this in a real-world app
-            return render_template('predict.html', result=error_message)
-
-    # Handle GET requests
-    return render_template('predict.html')
-
-if __name__ == '__main__':
-    app.run(debug=True)
+        except ValueError as e:
+            st.error(f"An error occurred: {e}")

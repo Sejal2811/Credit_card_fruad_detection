@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Card Fraud Detection</title>
+</head>
+<body>
+    <h1>Welcome to the Credit Card Fraud Detection System</h1>
+    <p>This system predicts if a credit card transaction is fraudulent or not.</p>
+
+    <h2>Transaction Amount Distribution</h2>
+    <img src="{{ url_for('static', filename='amount_distribution.png') }}" alt="Amount Distribution">
+    <img src="{{ url_for('static', filename='age_distribution.png') }}" alt="Age Distribution">
+    <p>Explore more using our prediction page!</p>
+    <a href="/predict">Go to Prediction</a>
+</body>
+</html>

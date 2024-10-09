@@ -3,16 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credit Card Fraud Detection</title>
+    <title>Credit Card Fraud Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Welcome to the Credit Card Fraud Detection System</h1>
-    <p>This system predicts if a credit card transaction is fraudulent or not.</p>
+    <header>
+        <h1>Welcome to the Credit Card Fraud Analyzer</h1>
+    </header>
 
-    <h2>Transaction Amount Distribution</h2>
-    <img src="{{ url_for('static', filename='amount_distribution.png') }}" alt="Amount Distribution">
-    <img src="{{ url_for('static', filename='age_distribution.png') }}" alt="Age Distribution">
-    <p>Explore more using our prediction page!</p>
-    <a href="/predict">Go to Prediction</a>
+    <section class="intro">
+        <p>This system helps you predict if a credit card transaction is fraudulent.</p>
+        <p>Explore transaction analytics, make predictions, and approve transactions securely.</p>
+    </section>
+
+    <div class="grid-container">
+        <div class="grid-item">
+            <h2>Transaction Analysis</h2>
+            <img src="{{ url_for('static', filename='amount_distribution.png') }}" alt="Amount Distribution">
+            <img src="{{ url_for('static', filename='age_distribution.png') }}" alt="Age Distribution">
+            <p>Check transaction trends for better insights.</p>
+            <a href="/analyze" class="btn">Analyze Now</a>
+        </div>
+        <div class="grid-item">
+            <h2>Predict Fraud</h2>
+            <p>Use our advanced AI system to predict whether a transaction is fraudulent.</p>
+            <a href="/predict" class="btn">Go to Prediction</a>
+        </div>
+        <div class="grid-item">
+            <h2>Approval System</h2>
+            <p>Approve or reject flagged transactions based on the prediction results.</p>
+            <a href="/approval" class="btn">Manage Approvals</a>
+        </div>
+    </div>
 </body>
 </html>

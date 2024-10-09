@@ -15,7 +15,7 @@ page = st.sidebar.selectbox("Go to", ["Homepage", "Predict"])
 
 # Homepage
 if page == "Homepage":
-    st.title("Credit Card Fraud Detection System")
+    st.title("Credit Card Fraud Analyzer")
     st.write("Welcome to the credit card fraud detection system.")
     st.write("Use this app to check whether a transaction is fraudulent or not.")
     st.write("""
@@ -25,20 +25,24 @@ if page == "Homepage":
     """)
     
     # Image Slider Section
-    st.write("### Featured Images")
+    st.write(" Plotting the graph ")
     
     # List of image paths
     images = [
-        'static/age_distribution.png',  # Replace with your actual image paths
-        'static/amount_distribution.png',
-        'static/Category.png'
+        ('static/age_distribution.png', "Age Distribution of Transactions"),
+        ('static/amount_distribution.png', "Amount Distribution of Transactions"),
+        ('static/Category.png', "Transaction Categories Overview")
     ]
 
-    # Create horizontal scrolling layout
-    cols = st.columns(len(images))
-    for i, image_path in enumerate(images):
-        image = Image.open(image_path)
-        cols[i].image(image, caption=f"Image {i + 1}", use_column_width=True)
+    # Create a horizontal layout for images
+    cols = st.columns(len(images))  # Create columns based on the number of images
+    for col, (image_path, description) in zip(cols, images):
+        # Check if the image file exists before attempting to open it
+        if os.path.exists(image_path):
+            image = Image.open(image_path)
+            col.image(image, caption=description, use_column_width='always')  # Set image width to always fit the column
+        else:
+            col.warning(f"Image not found: {image_path}")
 
 # Predict Page
 elif page == "Predict":

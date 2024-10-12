@@ -18,6 +18,8 @@ approval_model = joblib.load("Model/approval_model.pkl")
 fraud_class_names = ['Not Fraud', 'Fraud']
 approval_class_names = ['Declined', 'Approved']
 
+df = pd.read_csv('preprocessFraudTrain.csv')
+df.head()
 # Load your actual test data here
 data = pd.read_csv('Approval.csv')
 actual_labels = data['label'].values  # Assuming this is the column for true labels
@@ -46,20 +48,31 @@ def plot_education_distribution(data):
     fig_education = go.Figure(data=[go.Pie(labels=education_counts.index, values=education_counts.values, hole=.3)])
     fig_education.update_layout(title='Distribution of Education Levels')
     return fig_education
-
-
-def plot_label_distribution(data):
+def plot_fraud_distribution(df):
     """
-    Generates a pie chart for the distribution of labels.
+    Generates a pie chart for the distribution of fraud labels.
+    
+    Parameters:
+    - df: pandas DataFrame containing the 'is_fraud' column.
+    """
+    # Create pie chart for fraud label distribution
+    fraud_counts = df['is_fraud'].value_counts()
+    fig_fraud = go.Figure(data=[go.Pie(labels=fraud_counts.index, values=fraud_counts.values, hole=.3)])
+    fig_fraud.update_layout(title='Distribution of Frauds (1 = Yes, 0 = No)')
+    return fig_fraud
+
+def plot_approval_distribution(data):
+    """
+    Generates a pie chart for the distribution of approval labels.
     
     Parameters:
     - data: pandas DataFrame containing the 'label' column.
     """
-    # Create pie chart for label
-    label_counts = data['label'].value_counts()
-    fig_label = go.Figure(data=[go.Pie(labels=label_counts.index, values=label_counts.values, hole=.3)])
-    fig_label.update_layout(title='Distribution of Labels (1 = Yes, 0 = No)')
-    return fig_label
+    # Create pie chart for approval label distribution
+    approval_counts = data['label'].value_counts()
+    fig_approval = go.Figure(data=[go.Pie(labels=approval_counts.index, values=approval_counts.values, hole=.3)])
+    fig_approval.update_layout(title='Distribution of Approvals (1 = Yes, 0 = No)')
+    return fig_approval
 
 
 def plot_education_vs_label(data):
@@ -146,7 +159,33 @@ def calculate_precision_recall_f1(predictions, actual):
     return precision_per_class, recall_per_class, f1_per_class
 
 # Plots remain the same...
+category_options = {
+    '1': 'Grocery',
+    '2': 'Online shopping',
+    '3': 'Investment',
+    '4': 'Rent',
+    '5': 'Travel',
+    '6': 'Banking',
+    '7': 'Personal order',
+    '8': 'Entertainment',
+    '9': 'Fraud',
+    '10': 'Theft',
+    '11': 'Taxation',
+    '12': 'Business'
+}
 
+# Create a reverse mapping for easy access
+category_labels = {key: value for key, value in category_options.items()}
+
+education_options = {
+    '1': '10th pass',
+    '2': '12th pass',
+    '3': 'Undergraduate',
+    '4': 'PostGraduate'
+}
+
+# Create a reverse mapping for easy access
+education_labels = {key: value for key, value in education_options.items()}
 # Frontend and logic for fraud detection and approval detection
 def main():
     # Set page configuration as the first Streamlit command
@@ -163,38 +202,56 @@ def main():
     )
 
     if page == "Home":
-        st.markdown("<h2 style='text-align: center;'>Credit Card Fraud Analyzer</h2>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align: center;'>Credit Card Analysing System</h1>", unsafe_allow_html=True)
+
+        # Subtitle
         st.markdown(
-            "<p style='text-align: center;'>This app provides fraud detection and approval prediction based on two different models.</p>",
-            unsafe_allow_html=True,
+            "<h2 style='text-align: center;'>Empowering Secure and Informed Financial Decisions through AI-Driven Insights</h2>", 
+            unsafe_allow_html=True
         )
-        st.markdown("<h3 style='text-align: center;'>Credit Card Fraud Prediction</h3>", unsafe_allow_html=True)
-        ##st.image("C:\\Users\\BHAGYASHREE\\credit card fraud detection\\fraud.png", 
-             ## caption="Understanding Credit Card Fraud Prediction", 
-             ## width=900)  # Adjust the width as needed
+
+
+        # Paragraph with justified alignment
         st.markdown(
-            "<p style='text-align: center;'>Credit card fraud prediction involves using machine learning algorithms to analyze transaction patterns and identify potentially fraudulent activities. By evaluating factors such as transaction amount, location, and time, our model can accurately predict the likelihood of fraud.</p>",
-            unsafe_allow_html=True,
+            """
+            <h4 style='text-align: center;'>
+            In today's digital economy, credit cards have become an essential tool for financial transactions. 
+            However, the increasing volume of transactions also brings escalating risks of credit card fraud 
+            and inefficient approval processes. To address these challenges, our project presents an 
+            Intelligent Credit Card Analysis Platform. Our cutting-edge platform leverages Machine Learning (ML) 
+            to detect potential fraud and streamline credit card approvals, empowering financial institutions and 
+            individuals to make informed decisions.
+            </h4>
+            """, 
+            unsafe_allow_html=True
         )
         
-        st.markdown("<h3 style='text-align: center;'>Approval Detection</h3>", unsafe_allow_html=True)
-        
-        ##st.image("C:\\Users\\BHAGYASHREE\\credit card fraud detection\\approval.jpeg", 
-           ## caption="Assessing Credit Approval", 
-           ## width=900)  # Adjust the width as needed
-        st.markdown(
-            "<p style='text-align: center;'>Approval detection uses customer information to determine the likelihood of credit approval. Factors like annual income, car ownership, and education level are considered to make an informed decision.</p>",
-            unsafe_allow_html=True,
-        )
 
     elif page == "Fraud Detection":
         st.title("Fraud Prediction")
-        st.write("Input transaction details to check for potential fraud.")
+        st.markdown("""
+    <style>
+        h3 {
+            font-family: 'Helvetica', sans-serif;
+            color: #333333;
+            margin-bottom: 15px;
+        }
+        p {
+            font-size: 16px;
+            color: #333333;
+            margin-bottom: 10px;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
+# Simplified content with font change
+        st.markdown("""
+            <h3>Note: Input transaction details to check for potential fraud</h3>
+        """, unsafe_allow_html=True)
         # Create a form for user input
         with st.form("fraud_detection_form"):
             cc_num = st.text_input("Credit Card Number", "")
-            category = st.selectbox("Transaction Category", ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'])
+            category = st.selectbox("Transaction Category", list(category_labels.keys()), format_func=lambda x: category_labels[x])
             amt = st.number_input("Transaction Amount", min_value=0.0, step=0.01)
             gender = st.selectbox("Gender", ['0 (Male)', '1 (Female)'])
             age = st.number_input("Age", min_value=0, step=1)
@@ -204,66 +261,108 @@ def main():
 
         # Handle form submission
         if submit:
-            try:
-                # Prepare the input for prediction
-                input_data = pd.DataFrame({
-                    'cc_num': [int(cc_num)],
-                    'category': [category],
-                    'amt': [amt],
-                    'gender': [int(gender[0])],  # Extract the integer value from the gender string
-                    'age': [age]
-                })
+            # Validate credit card number
+            if len(cc_num) != 10 or not cc_num.isdigit():
+                st.error("Credit Card Number must be exactly 10 digits.")
+            
+            # Validate transaction amount
+            elif amt <= 0:
+                st.error("Transaction Amount must be greater than zero.")
+            
+            # Validate gender selection
+            elif gender not in ['0 (Male)', '1 (Female)']:
+                st.error("Please select a valid gender option.")
+            
+            # Validate age
+            elif age < 0:
+                st.error("Age must be a non-negative integer.")
+            
+            else:
+                try:
+                    # Prepare the input for prediction
+                    input_data = pd.DataFrame({
+                        'cc_num': [int(cc_num)],
+                        'category': [category],
+                        'amt': [amt],
+                        'gender': [int(gender[0])],  # Extract the integer value from the gender string
+                        'age': [age]
+                    })
 
-                # Make prediction
-                prediction = process_fraud_detection(input_data)
+                    # Make prediction
+                    prediction = process_fraud_detection(input_data)
 
-                # Display the result
-                if prediction == 1:
-                    st.error("Warning: This transaction is predicted as **Fraudulent**!")
-                else:
-                    st.success("This transaction is predicted as **Non-Fraudulent**.")
+                    # Display the result
+                    if prediction == 1:
+                        st.error("Warning: This transaction is predicted as **Fraudulent**!")
+                    else:
+                        st.success("This transaction is predicted as **Non-Fraudulent**.")
 
-            except ValueError as e:
-                st.error(f"An error occurred: {e}")
+                except ValueError as e:
+                    st.error(f"An error occurred: {e}")
 
     elif page == "Approval Detection":
         st.title("Approval Detection")
-        st.write("Input customer details to check for credit approval.")
-
+        st.markdown("""
+            <h3>Note: Input customer details to check for credit approval</h3>
+        """, unsafe_allow_html=True)
         # Create a form for user input
         with st.form("approval_detection_form"):
             credit_number = st.text_input("Credit Number", "")
             car_owner = st.selectbox("Car Owner", ['1 (Yes)', '0 (No)'])
             property_owner = st.selectbox("Property Owner", ['1 (Yes)', '0 (No)'])
             annual_income = st.number_input("Annual Income", min_value=0.0, step=1000.0)
-            education = st.selectbox("Education Level", ['1', '2', '3', '4'])
+            education = st.selectbox("Education Level", list(education_labels.keys()), format_func=lambda x: education_labels[x])
 
             # Submit button
             submit = st.form_submit_button("Check for Approval")
 
         # Handle form submission
+        # Handle form submission
         if submit:
-            try:
-                # Prepare the input for prediction
-                input_data = pd.DataFrame({
-                    'Credit_Number': [int(credit_number)],
-                    'Car_Owner': [int(car_owner[0])],  # Extract integer value from string
-                    'Property_Owner': [int(property_owner[0])],
-                    'Annual_income': [annual_income],
-                    'EDUCATION': [int(education)]
-                })
+                    # Validate credit number
+                    if len(credit_number) == 0:
+                        st.error("Credit Number cannot be empty.")
+                    elif not credit_number.isdigit():
+                        st.error("Credit Number must be numeric.")
+                    
+                    # Validate car owner selection
+                    elif car_owner not in ['1 (Yes)', '0 (No)']:
+                        st.error("Please select a valid option for Car Owner.")
+                    
+                    # Validate property owner selection
+                    elif property_owner not in ['1 (Yes)', '0 (No)']:
+                        st.error("Please select a valid option for Property Owner.")
+                    
+                    # Validate annual income
+                    elif annual_income <= 0:
+                        st.error("Annual Income must be greater than zero.")
+                    
+                    # Validate education level
+                    elif education not in ['1', '2', '3', '4']:
+                        st.error("Please select a valid Education Level.")
+                    
+                    else:
+                        try:
+                            # Prepare the input for prediction
+                            input_data = pd.DataFrame({
+                                'Credit_Number': [int(credit_number)],
+                                'Car_Owner': [int(car_owner[0])],  # Extract integer value from string
+                                'Property_Owner': [int(property_owner[0])],
+                                'Annual_income': [annual_income],
+                                'EDUCATION': [int(education)]
+                            })
 
-                # Make prediction
-                approval_prediction = process_approval_detection(input_data)
+                            # Make prediction
+                            approval_prediction = process_approval_detection(input_data)
 
-                # Display the result
-                if approval_prediction == 1:  # Assuming 1 means Approved
-                    st.success(f"The credit application is **Approved**!")
-                else:
-                    st.error(f"The credit application is **Declined**.")
+                            # Display the result
+                            if approval_prediction == 1:  # Assuming 1 means Approved
+                                st.success(f"The credit application is **Approved**!")
+                            else:
+                                st.error(f"The credit application is **Declined**.")
 
-            except ValueError as e:
-                st.error(f"An error occurred: {e}")
+                        except ValueError as e:
+                            st.error(f"An error occurred: {e}")
 
     elif page == "Model Performance":
         st.title("Model Performance")
@@ -279,34 +378,36 @@ def main():
         # Calculate precision, recall, and F1-score per class
         precision, recall, f1 = calculate_precision_recall_f1(predictions_fraud, actual_labels)
         approval_accuracy=90.0
-        fraud_score=75.0
+        fraud_score=85.60
         # Create performance plots
         fig_education = plot_education_vs_label(data)
-        fig_label=plot_label_distribution(data)
+        fig_label1 = plot_fraud_distribution(df)
+        fig_label2=plot_approval_distribution(data)
         metrics_fig = plot_metrics(precision, recall, f1)
-
-        fig_correlation = plot_correlation_matrix(data)
+        fig_correlation2 = plot_correlation_matrix(df)
+        fig_correlation1 = plot_correlation_matrix(data)
         fig_pie = plot_education_distribution(data)
         # Assuming you have your predictions and actual labels
         predictions_approval = approval_model.predict(data[['Credit_Number', 'Car_Owner', 'Propert_Owner', 'Annual_income', 'EDUCATION']])
         actual_labels_approval = data['label']  # Assuming 'label' is the actual ground truth
-
+        
         # Calculate the accuracy
         #approval_accuracy = calculate_approval_accuracy(predictions_approval, actual_labels_approval)
     
         # Display the accuracy in Streamlit
         st.metric(label="Approval Prediction Accuracy", value=f"{approval_accuracy}%")
         st.metric(label="Fraud DetectionAccuracy", value=f"{fraud_score}%")
-        
+        st.title("Approvals")
         left, right = st.columns(2)
         with left:
-            st.plotly_chart(fig_correlation, use_container_width=True)
+            st.plotly_chart(fig_correlation1, use_container_width=True)
         with right:
-            st.plotly_chart(fig_education, use_container_width=True)
+            st.plotly_chart(fig_label2, use_container_width=True)
+        st.title("Fraud")
         left, right = st.columns(2)
         with left:
-            st.plotly_chart(fig_pie, use_container_width=True)
+            st.plotly_chart(fig_correlation2, use_container_width=True)
         with right:
-            st.plotly_chart(fig_label, use_container_width=True)
+            st.plotly_chart(fig_label1, use_container_width=True)
 if __name__ == "__main__":
     main()

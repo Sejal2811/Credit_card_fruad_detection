@@ -1,6 +1,4 @@
-<<<<<<< HEAD
-# credit-fraud-detection
-# Credit Card Fraud Detection and Approval App 💳
+# 💳 Credit Card Fraud Detection & Approval System
 
 ## Overview
 This project is an intelligent platform that leverages machine learning to detect fraudulent credit card transactions and predict credit approval. It aims to secure financial transactions and streamline decision-making processes for credit card approvals.
@@ -16,6 +14,14 @@ This project is an intelligent platform that leverages machine learning to detec
 - Streamlit
 - Required Python libraries (see `requirements.txt`)
 
+## 👥 Team Members
+
+This project was collaboratively built by:
+
+- 👩‍💻 Sejal Birgawale 
+- 👩‍💻 Indrayani Bhujade  
+- 👨‍💻 Kulashri Kasbe  
+
 ## Installation
 1. Clone the repository:
    ```bash
@@ -27,7 +33,6 @@ source venv/bin/activate  # On Windows: `venv\Scripts\activate`
 pip install -r requirements.txt
 
 streamlit run app.py
-V
-=======
+
 # Credit_card_fruad_detection
->>>>>>> 164c3af1f523f40dcb932ce2d1c228b64aca369b
+

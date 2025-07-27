@@ -20,7 +20,7 @@ This project was collaboratively built by:
 
 - 👩‍💻 Sejal Birgawale 
 - 👩‍💻 Indrayani Bhujade  
-- 👨‍💻 Kulashri Kasbe  
+- 👨‍💻 Bhagyashree Tikhe 
 
 ## Installation
 1. Clone the repository:

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # credit-fraud-detection
 # Credit Card Fraud Detection and Approval App 💳
 
@@ -27,3 +28,6 @@ pip install -r requirements.txt
 
 streamlit run app.py
 V
+=======
+# Credit_card_fruad_detection
+>>>>>>> 164c3af1f523f40dcb932ce2d1c228b64aca369b
